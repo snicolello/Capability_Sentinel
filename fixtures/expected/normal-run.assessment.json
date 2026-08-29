@@ -1,0 +1,25 @@
+{
+  "agent_id": "repo-maintainer",
+  "capability_drift": 0,
+  "evaluations": [
+    {
+      "decision": "ALLOW",
+      "event_id": "evt-normal-001",
+      "matched_rule_id": "read-src",
+      "outcome": "ALLOWED"
+    },
+    {
+      "decision": "ALLOW",
+      "event_id": "evt-normal-002",
+      "matched_rule_id": "run-tests",
+      "outcome": "ALLOWED"
+    }
+  ],
+  "events_observed": 2,
+  "findings": [],
+  "matched_policy": 2,
+  "overall_decision": "ALLOW",
+  "policy_id": "repo-maintainer-v1",
+  "run_id": "run-normal",
+  "schema_version": "0.1"
+}

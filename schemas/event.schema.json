@@ -18,7 +18,11 @@
   "properties": {
     "schema_version": { "const": "0.1" },
     "event_id": { "$ref": "#/$defs/id" },
-    "observed_at": { "type": "string", "format": "date-time" },
+    "observed_at": {
+      "type": "string",
+      "format": "date-time",
+      "maxLength": 64
+    },
     "sequence": { "type": "integer", "minimum": 1 },
     "run_id": { "$ref": "#/$defs/id" },
     "agent_id": { "$ref": "#/$defs/id" },

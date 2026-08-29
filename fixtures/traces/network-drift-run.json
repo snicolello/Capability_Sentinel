@@ -1,0 +1,24 @@
+{
+  "schema_version": "0.1",
+  "run_id": "run-network-drift",
+  "agent_id": "repo-maintainer",
+  "platform": "windows",
+  "events": [
+    {
+      "schema_version": "0.1",
+      "event_id": "evt-network-001",
+      "observed_at": "2026-08-29T14:33:17.084Z",
+      "sequence": 1,
+      "run_id": "run-network-drift",
+      "agent_id": "repo-maintainer",
+      "capability": "NETWORK_EGRESS",
+      "target": {
+        "kind": "network_origin",
+        "scheme": "https",
+        "host": "registry.npmjs.org",
+        "port": 443
+      },
+      "source": "test_fixture"
+    }
+  ]
+}

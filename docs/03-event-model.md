@@ -9,6 +9,8 @@ The normative design contracts are:
 
 All use JSON Schema Draft 2020-12. JSON is the canonical interchange format for v0.1; YAML is deferred so tags, aliases, duplicate keys, and scalar coercion cannot create parser differences.
 
+`observed_at` must be a `date-time` string no longer than 64 characters. This bounds format-validation input while leaving room for canonical RFC 3339 timestamps used by collectors.
+
 ## Canonical event example
 
 ```json
@@ -37,6 +39,7 @@ Targets are typed objects rather than overloaded strings. That avoids unsafe rec
 The loader must reject the entire trace if:
 
 - event IDs or sequence numbers are duplicated;
+- an event ID is longer than 103 characters, because the deterministic finding ID derived from it must fit the 128-character identifier contract;
 - sequence numbers are not contiguous from 1 in array order;
 - an event's `run_id` or `agent_id` differs from the trace envelope;
 - a target is not in canonical form for the declared `platform`;

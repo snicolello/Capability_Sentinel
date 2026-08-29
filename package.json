@@ -1,0 +1,22 @@
+{
+  "name": "agent-runtime-risk-monitor",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Deterministic offline assessment for declared versus observed agent operations.",
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "bin": {
+    "arrm": "src/cli.js"
+  },
+  "scripts": {
+    "check": "node scripts/check-schemas.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "jsonc-parser": "3.3.1"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "schema_version": "0.1",
+  "policy_id": "repo-maintainer-v1",
+  "agent_id": "repo-maintainer",
+  "platform": "windows",
+  "workspace_root": "C:/work/repo",
+  "rules": [
+    {
+      "id": "read-src",
+      "capability": "FILESYSTEM_READ",
+      "target": {
+        "kind": "path_scope",
+        "path": "src",
+        "recursive": true
+      }
+    },
+    {
+      "id": "run-tests",
+      "capability": "PROCESS_EXEC",
+      "target": {
+        "kind": "process",
+        "executable": "npm.cmd",
+        "args": [
+          "test"
+        ],
+        "shell": false
+      }
+    }
+  ],
+  "response_map": {
+    "INFO": "LOG",
+    "LOW": "LOG",
+    "MEDIUM": "REQUIRE_APPROVAL",
+    "HIGH": "BLOCK",
+    "CRITICAL": "TERMINATE"
+  }
+}

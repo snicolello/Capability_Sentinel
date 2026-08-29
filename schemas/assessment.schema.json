@@ -57,9 +57,13 @@
           "required": ["matched_rule_id"],
           "properties": {
             "outcome": { "const": "ALLOWED" },
-            "decision": { "const": "ALLOW" }
+            "decision": { "const": "ALLOW" },
+            "matched_rule_id": {}
           },
-          "not": { "required": ["finding_id"] }
+          "not": {
+            "properties": { "finding_id": {} },
+            "required": ["finding_id"]
+          }
         },
         {
           "required": ["finding_id"],
@@ -67,9 +71,13 @@
             "outcome": { "const": "DRIFT" },
             "decision": {
               "enum": ["LOG", "REQUIRE_APPROVAL", "BLOCK", "TERMINATE"]
-            }
+            },
+            "finding_id": {}
           },
-          "not": { "required": ["matched_rule_id"] }
+          "not": {
+            "properties": { "matched_rule_id": {} },
+            "required": ["matched_rule_id"]
+          }
         }
       ]
     }
