@@ -17,3 +17,7 @@ function sortValue(value) {
 export function stableJson(value) {
   return `${JSON.stringify(sortValue(value), null, 2)}\n`;
 }
+
+export function stableJsonLine(value) {
+  return JSON.stringify(sortValue(value));
+}

@@ -2,16 +2,16 @@
 
 ## Current objective and stop gate
 
-ARRM M0 and M1 are complete in implementation commit `e0cc0ca` (`feat: implement deterministic ARRM M1 slice`). M2 is also complete. The repository now contains a deterministic offline assessor for the full approved v0.1 capability taxonomy:
+ARRM M0 and M1 are complete in implementation commit `e0cc0ca` (`feat: implement deterministic ARRM M1 slice`), and M2 is complete in commit `0014e53` (`feat: complete deterministic ARRM M2 core`). M3 is also complete. The repository now contains a deterministic offline assessor for the full approved v0.1 capability taxonomy:
 
 ```text
 load strict policy and canonical trace
 → validate structure and semantics
 → evaluate all seven trace capabilities against all six declarable capabilities
-→ emit canonical deterministic JSON
+→ emit canonical deterministic JSON or stable human-readable text
 ```
 
-Do not automatically broaden the implementation. M3 is the next planned milestone and requires separate explicit user authorization. A real collector, enforcement integration, effective-capability graph, dashboard, persistence, YAML, AEF integration, and other deferred subsystems remain out of scope.
+Do not automatically broaden the implementation. M4 is the next planned milestone and requires separate explicit user authorization. A real collector, enforcement integration, effective-capability graph, dashboard, persistence, YAML, AEF integration, and other deferred subsystems remain out of scope.
 
 ## Repository state at this handoff
 
@@ -19,7 +19,8 @@ Do not automatically broaden the implementation. M3 is the next planned mileston
 - Branch: `main`
 - Approved design commit: `b1e20dc` — `docs: define ARRM v0.1 security model`
 - M0/M1 implementation commit: `e0cc0ca` — `feat: implement deterministic ARRM M1 slice`
-- M2 implementation: complete; use `git log -1 --oneline` for the implementation commit.
+- M2 implementation commit: `0014e53` — `feat: complete deterministic ARRM M2 core`
+- M3 implementation: complete; use `git log -1 --oneline` for the implementation commit.
 - Planning and handoff documents now live under `docs/`.
 - The documentation relocation/progress refresh is committed after `e0cc0ca`; use `git log -2 --oneline` for the exact latest commit.
 - Inspect `git status` before editing and preserve any later user work.
@@ -62,6 +63,14 @@ Do not automatically broaden the implementation. M3 is the next planned mileston
 - All seven trace capabilities have explicit severity and evaluation paths; unknown evaluator states fail instead of allowing.
 - All six policy capabilities pass semantic validation once their matcher is available.
 
+### M3 — complete CLI and audit presentation
+
+- `arrm assess POLICY.json TRACE.json` emits stable human-readable text; adding `--json` emits canonical JSON.
+- Text output preserves counts, ordered evaluations, finding identifiers, typed targets, reasons, severity, and prescribed decisions.
+- Text output labels `BLOCK` and `TERMINATE` as prescribed decisions and never claims enforcement occurred.
+- Valid assessment exits cover `0/3/4/5`; usage, input, and internal failures remain distinct at `64/65/70` and produce no security conclusion.
+- Output-file behavior was not approved and remains unimplemented.
+
 ## Committed fixtures and verified behavior
 
 ```powershell
@@ -70,15 +79,17 @@ npm.cmd test
 npm.cmd run check
 node src/cli.js assess fixtures/policies/example-agent.json fixtures/traces/normal-run.json --json
 node src/cli.js assess fixtures/policies/example-agent.json fixtures/traces/network-drift-run.json --json
+node src/cli.js assess fixtures/policies/example-agent.json fixtures/traces/normal-run.json
+node src/cli.js assess fixtures/policies/example-agent.json fixtures/traces/network-drift-run.json
 ```
 
 Verification baseline at handoff:
 
-- 47 automated tests pass.
+- 52 automated tests pass.
 - All five schemas compile in strict Draft 2020-12 mode.
 - Normal fixture: 2 observed, 2 matched, 0 drift, overall `ALLOW`, exit `0`.
 - Network-drift fixture: one derived `NETWORK_EGRESS`, `HIGH/BLOCK` finding, overall `BLOCK`, exit `4`.
-- Both commands are byte-identical across repeated runs and match committed expected JSON.
+- JSON commands are byte-identical across repeated runs and match committed expected JSON; text output is also byte-stable across repeated runs.
 - Malformed or unknown policy/trace data exits `65`, writes no assessment to stdout, and never prints an `ALLOW` conclusion.
 - Invalid command usage exits `64`; unexpected internal errors exit `70` with no security conclusion.
 
@@ -111,14 +122,14 @@ Read these before further implementation:
 
 ## Next planned milestone if explicitly authorized
 
-M3 completes CLI and audit presentation without adding runtime integration:
+M4 completes the approved fixture and hardening matrix without adding runtime integration:
 
-1. Add the stable human-readable text renderer.
-2. Finish CLI diagnostics and the documented `0/3/4/5/64/65/70` exit-code presentation contract.
-3. Keep prescribed decisions distinct from enforcement outcomes in every output mode.
-4. Do not pull in M4 scenario fixtures or M6 runtime discovery.
+1. Add the approved scenario B, D, and E fixtures and expected assessments.
+2. Automate every row in both test-mapping tables, including empty traces and mandatory failures.
+3. Validate every scenario assessment/finding and demonstrate repeated byte equality.
+4. Retain secret-safe diagnostics and keep M6 runtime discovery deferred.
 
-Do not treat completion of M2 as permission to add full scenarios B, D, and E automatically where the plan assigns them to M4, or to add a collector, enforcement, YAML, persistence, AEF integration, capability composition, or OS controls.
+Do not treat completion of M3 as permission to add full scenarios B, D, and E automatically where the plan assigns them to M4, or to add a collector, enforcement, YAML, persistence, AEF integration, capability composition, or OS controls.
 
 ## Suggested fresh-chat prompt
 
@@ -126,13 +137,13 @@ Do not treat completion of M2 as permission to add full scenarios B, D, and E au
 >
 > Read `docs/CONTEXT_HANDOFF.md`, then `docs/IMPLEMENTATION_PLAN.md`, the authoritative design documents, and the schemas. Inspect `git status` and preserve existing work.
 >
-> M0 and M1 are complete at implementation commit `e0cc0ca`; M2 is also complete. Do not repeat them. Ask for or confirm explicit authorization before beginning M3, and do not add runtime collection, enforcement, YAML, persistence, dashboards, AEF integration, capability composition, or other deferred scope.
+> M0 and M1 are complete at implementation commit `e0cc0ca`; M2 is complete at `0014e53`; M3 is also complete. Do not repeat them. Ask for or confirm explicit authorization before beginning M4, and do not add runtime collection, enforcement, YAML, persistence, dashboards, AEF integration, capability composition, or other deferred scope.
 
 ## Stop conditions
 
 Stop and ask for direction if:
 
-- M3 or any later milestone has not been explicitly authorized;
+- M4 or any later milestone has not been explicitly authorized;
 - a required change would weaken an approved schema or security invariant;
 - completing a matcher would require runtime target resolution, a collector, or another deferred subsystem;
 - the installed Node major must change or a new dependency family is proposed;

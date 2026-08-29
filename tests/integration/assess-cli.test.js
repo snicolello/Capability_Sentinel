@@ -7,6 +7,7 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import policyFixture from '../../fixtures/policies/example-agent.json' with { type: 'json' };
 import normalTrace from '../../fixtures/traces/normal-run.json' with { type: 'json' };
+import { main } from '../../src/cli.js';
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const cliPath = path.join(repositoryRoot, 'src', 'cli.js');
@@ -17,6 +18,14 @@ function assess(traceName) {
   return spawnSync(process.execPath, [cliPath, 'assess', policyPath, tracePath, '--json'], {
     cwd: repositoryRoot,
     encoding: null,
+  });
+}
+
+function assessText(traceName) {
+  const tracePath = path.join(repositoryRoot, 'fixtures', 'traces', traceName);
+  return spawnSync(process.execPath, [cliPath, 'assess', policyPath, tracePath], {
+    cwd: repositoryRoot,
+    encoding: 'utf8',
   });
 }
 
@@ -36,6 +45,19 @@ for (const [traceName, expectedName, exitCode] of [
     assert.deepEqual(first.stdout, second.stdout);
   });
 }
+
+test('text mode is deterministic and expresses the JSON assessment result', () => {
+  const first = assessText('network-drift-run.json');
+  const second = assessText('network-drift-run.json');
+  assert.equal(first.status, 4);
+  assert.equal(first.stderr, '');
+  assert.equal(first.stdout, second.stdout);
+  assert.match(first.stdout, /Events observed: 1\n/u);
+  assert.match(first.stdout, /Matched policy: 0\n/u);
+  assert.match(first.stdout, /Capability drift: 1\n/u);
+  assert.match(first.stdout, /Overall prescribed decision: BLOCK\n/u);
+  assert.match(first.stdout, /Prescribed decision: BLOCK\n/u);
+});
 
 test('invalid JSON produces a controlled content-safe error and no assessment', async (context) => {
   const directory = await mkdtemp(path.join(tmpdir(), 'arrm-cli-'));
@@ -164,4 +186,54 @@ test('invalid command usage exits 64 without an assessment', () => {
   assert.equal(result.status, 64);
   assert.equal(result.stdout, '');
   assert.match(result.stderr, /^ARRM_ERROR INVALID_USAGE:/u);
+});
+
+test('valid assessments use REQUIRE_APPROVAL and TERMINATE exit codes', async (context) => {
+  const directory = await mkdtemp(path.join(tmpdir(), 'arrm-cli-'));
+  context.after(() => rm(directory, { recursive: true, force: true }));
+
+  for (const { capability, target, expectedDecision, expectedExit } of [
+    {
+      capability: 'FILESYSTEM_READ',
+      target: { kind: 'path', path: 'C:/outside/repository.txt' },
+      expectedDecision: 'REQUIRE_APPROVAL',
+      expectedExit: 3,
+    },
+    {
+      capability: 'CREDENTIAL_READ',
+      target: { kind: 'credential', provider: 'environment', name: 'API_TOKEN' },
+      expectedDecision: 'TERMINATE',
+      expectedExit: 5,
+    },
+  ]) {
+    const trace = structuredClone(normalTrace);
+    trace.events = [{ ...trace.events[0], capability, target }];
+    const tracePath = path.join(directory, `${capability}.json`);
+    await writeFile(tracePath, JSON.stringify(trace));
+    const result = spawnSync(
+      process.execPath,
+      [cliPath, 'assess', policyPath, tracePath, '--json'],
+      { cwd: repositoryRoot, encoding: 'utf8' },
+    );
+    assert.equal(result.status, expectedExit, capability);
+    assert.equal(result.stderr, '', capability);
+    assert.equal(JSON.parse(result.stdout).overall_decision, expectedDecision, capability);
+  }
+});
+
+test('unexpected internal errors exit 70 without a security conclusion', async () => {
+  const tracePath = path.join(repositoryRoot, 'fixtures', 'traces', 'normal-run.json');
+  let stderr = '';
+  const exitCode = await main(
+    ['assess', policyPath, tracePath, '--json'],
+    {
+      stdout: { write: () => { throw new Error('simulated output failure'); } },
+      stderr: { write: (value) => { stderr += value; } },
+    },
+  );
+  assert.equal(exitCode, 70);
+  assert.equal(stderr, 'ARRM_ERROR INTERNAL_ERROR: assessment failed\n');
+  assert.equal(stderr.includes('ALLOW'), false);
+  assert.equal(stderr.includes('BLOCK'), false);
+  assert.equal(stderr.includes('TERMINATE'), false);
 });

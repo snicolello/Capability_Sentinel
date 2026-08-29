@@ -12,12 +12,14 @@ import {
 } from './schema/validate-input.js';
 import { evaluateRun } from './evaluate/evaluate-run.js';
 import { stableJson } from './audit/stable-json.js';
+import { renderText } from './render/text.js';
 
 function parseArguments(args) {
-  if (args.length !== 4 || args[0] !== 'assess' || args[3] !== '--json') {
-    throw new UsageError('usage: arrm assess POLICY.json TRACE.json --json');
+  const validLength = args.length === 3 || args.length === 4;
+  if (!validLength || args[0] !== 'assess' || (args.length === 4 && args[3] !== '--json')) {
+    throw new UsageError('usage: arrm assess POLICY.json TRACE.json [--json]');
   }
-  return { policyPath: args[1], tracePath: args[2] };
+  return { policyPath: args[1], tracePath: args[2], json: args.length === 4 };
 }
 
 function exitCodeForDecision(decision) {
@@ -33,7 +35,7 @@ function exitCodeForDecision(decision) {
 
 export async function main(args, io = process) {
   try {
-    const { policyPath, tracePath } = parseArguments(args);
+    const { policyPath, tracePath, json } = parseArguments(args);
     const policy = await loadJsonFile(
       policyPath,
       { label: 'policy', maxBytes: INPUT_LIMITS.policy },
@@ -47,7 +49,7 @@ export async function main(args, io = process) {
     validateInputPair(policy, trace);
     const assessment = evaluateRun(policy, trace);
     validateAssessmentStructure(assessment);
-    io.stdout.write(stableJson(assessment));
+    io.stdout.write(json ? stableJson(assessment) : renderText(assessment));
     return exitCodeForDecision(assessment.overall_decision);
   } catch (error) {
     if (error instanceof ArrmError) {

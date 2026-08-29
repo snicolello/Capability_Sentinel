@@ -6,21 +6,24 @@ This plan converts the approved discovery artifacts into a small, deterministic 
 
 ## Current execution status
 
-Updated 2026-08-29 after completing the M2 working-tree implementation.
+Updated 2026-08-29 after completing the M3 working-tree implementation.
 
 | Milestone | Status | Evidence |
 |---|---|---|
 | M0 — reproducible scaffold | Complete | Node `24.13.0` pin, exact npm lock, strict schema check, and approved dependency families are committed. |
 | M1 — thin vertical slice | Complete | Scenarios A and C, canonical JSON, fail-closed CLI behavior, and 38 automated tests are committed. |
 | M2 — complete deterministic core | Complete | All seven event capabilities now have total evaluation paths; all six declarable capabilities have deterministic matchers; focused M2 tests pass. |
-| M3–M6 | Deferred | M3 is the next milestone and requires separate explicit authorization. |
+| M3 — complete CLI and audit presentation | Complete | Stable text and canonical JSON modes have parity; all documented exit codes and prescribed-decision wording are tested. |
+| M4–M6 | Deferred | M4 is the next milestone and requires separate explicit authorization. |
 
 Current verification baseline:
 
-- `npm.cmd test` passes 47 tests.
+- `npm.cmd test` passes 52 tests.
 - `npm.cmd run check` compiles all five Draft 2020-12 schemas in strict mode.
 - The normal fixture emits byte-stable `ALLOW` JSON and exits `0`.
 - The network-drift fixture emits one `NETWORK_EGRESS`, `HIGH/BLOCK` finding and exits `4`.
+- Text mode is byte-stable and expresses the same counts, findings, and overall prescribed decision as JSON mode.
+- The complete `0/3/4/5/64/65/70` exit-code contract is automated.
 - Every schema-valid capability is evaluated; malformed or unknown policy/trace input exits `65` and emits no assessment.
 - The production lock uses `ajv@8.20.0`, `ajv-formats@3.0.1`, and `jsonc-parser@3.3.1`; the online npm audit reported zero known vulnerabilities at the verification point.
 
@@ -259,7 +262,7 @@ Acceptance criteria:
 - Severity and response behavior exactly match the approved taxonomy and constrained policy map.
 - No unexpected input state falls through to allow.
 
-Completion evidence: shared read/write path matching, exact credential and tool matching, explicit `UNCLASSIFIED_OPERATION` findings, the complete fixed severity table, and focused semantic/evaluator/CLI coverage are implemented. All 47 tests and all five strict schema compilations pass. M3 and M4 work remains deferred.
+Completion evidence: shared read/write path matching, exact credential and tool matching, explicit `UNCLASSIFIED_OPERATION` findings, the complete fixed severity table, and focused semantic/evaluator/CLI coverage are implemented. M2's focused tests remain passing; M4 work remains deferred.
 
 ### M3 — Complete CLI and audit presentation
 
@@ -271,6 +274,8 @@ Acceptance criteria:
 - Exit codes match `0/3/4/5/64/65/70` as documented.
 - Invalid input and internal errors are distinguishable from security findings.
 - `BLOCK` and `TERMINATE` are always labeled prescribed decisions, never enforcement outcomes.
+
+Completion evidence: the working tree adds a pure stable text renderer, makes `--json` optional, verifies text/JSON assessment parity, and covers all documented exit codes. All 52 tests and all five strict schema compilations pass. Output-file behavior was not separately approved and remains unimplemented.
 
 ### M4 — Full fixture and hardening matrix
 
@@ -313,8 +318,9 @@ Acceptance criteria to authorize later work:
 2. **Complete:** implement M1 as one thin vertical slice (`e0cc0ca`).
 3. **Complete:** compare M1 behavior with the approved schemas and claims before broadening capability coverage.
 4. **Complete:** implement and verify M2 as a focused deterministic-core change.
-5. **Pending explicit authorization:** complete M3–M4 in small commits, each with tests and corresponding documentation changes.
-6. Execute M5 and stop.
-7. Open a separate design decision for M6 only if requested.
+5. **Complete:** implement and verify M3 as a focused presentation/CLI change.
+6. **Pending explicit authorization:** complete M4 with tests and corresponding documentation changes.
+7. Execute M5 and stop.
+8. Open a separate design decision for M6 only if requested.
 
 Do not combine M1 with a real agent adapter, YAML support, persistence, OPA/Rego, a dashboard, AEF integration, or OS containment.
