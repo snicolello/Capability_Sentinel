@@ -10,7 +10,7 @@ ARRM is a conformance monitor, not a sandbox. It does not infer every capability
 
 ## Current status
 
-Discovery and design only. There is intentionally no implementation yet.
+The approved design package is complete. Milestones M0 and M1 now provide a reproducible Node.js scaffold and a thin offline assessment slice for declared repository reads/process execution and unauthorized network egress. This is not yet the complete v0.1 capability or scenario matrix.
 
 The v0.1 design is organized as nine reviewable artifacts:
 
@@ -28,12 +28,20 @@ Machine-readable design contracts live in [`schemas/`](schemas/). The design dra
 
 ARRM remains conceptually separate from the Agent Execution Framework (AEF). Nothing in this repository asserts that AEF implements or depends on the external models cited here.
 
-## Proposed v0.1 command
+## M1 command
 
 ```text
-arrm assess POLICY.json TRACE.json [--json]
+arrm assess POLICY.json TRACE.json --json
 ```
 
-The command will validate a policy and canonical trace, normalize policy scopes, evaluate every event with deny-by-default allow rules, and emit a run assessment. A `BLOCK` or `TERMINATE` result from this offline command is a prescribed response, not proof that containment occurred.
+Install the pinned dependencies and run the committed fixtures with:
 
-Implementation should begin only after the design invariants and open assumptions in these documents have been reviewed.
+```powershell
+npm.cmd ci
+npm.cmd test
+node src/cli.js assess fixtures/policies/example-agent.json fixtures/traces/normal-run.json --json
+```
+
+The M1 command validates a policy and canonical trace, normalizes policy scopes, evaluates the supported event classes with deny-by-default allow rules, and emits canonical JSON. A `BLOCK` or `TERMINATE` result from this offline command is a prescribed response, not proof that containment occurred. Schema-valid capabilities outside the M1 slice fail as unsupported input and never produce an `ALLOW` assessment.
+
+Implementation remains bounded by the [`IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md), with current continuation state recorded in [`CONTEXT_HANDOFF.md`](docs/CONTEXT_HANDOFF.md). Collectors, enforcement, YAML, persistence, dashboards, AEF integration, and capability composition remain deferred.
