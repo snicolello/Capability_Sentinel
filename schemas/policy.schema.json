@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arrm.local/schemas/policy.schema.json",
+  "title": "ARRM policy v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "policy_id",
+    "agent_id",
+    "platform",
+    "workspace_root",
+    "rules",
+    "response_map"
+  ],
+  "properties": {
+    "schema_version": { "const": "0.1" },
+    "policy_id": { "$ref": "event.schema.json#/$defs/id" },
+    "agent_id": { "$ref": "event.schema.json#/$defs/id" },
+    "platform": { "enum": ["posix", "windows"] },
+    "workspace_root": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096,
+      "pattern": "^(?:[A-Za-z]:/|/)[^\\u0000]*$"
+    },
+    "rules": {
+      "type": "array",
+      "maxItems": 10000,
+      "items": { "$ref": "#/$defs/rule" }
+    },
+    "response_map": { "$ref": "#/$defs/responseMap" }
+  },
+  "$defs": {
+    "pathScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "path", "recursive"],
+      "properties": {
+        "kind": { "const": "path_scope" },
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "^[^\\u0000\\\\]+$"
+        },
+        "recursive": { "type": "boolean" }
+      }
+    },
+    "rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "capability", "target"],
+      "properties": {
+        "id": { "$ref": "event.schema.json#/$defs/id" },
+        "capability": {
+          "enum": [
+            "FILESYSTEM_READ",
+            "FILESYSTEM_WRITE",
+            "PROCESS_EXEC",
+            "NETWORK_EGRESS",
+            "CREDENTIAL_READ",
+            "TOOL_INVOKE"
+          ]
+        },
+        "target": { "type": "object" }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "capability": { "const": "FILESYSTEM_READ" },
+            "target": { "$ref": "#/$defs/pathScope" }
+          }
+        },
+        {
+          "properties": {
+            "capability": { "const": "FILESYSTEM_WRITE" },
+            "target": { "$ref": "#/$defs/pathScope" }
+          }
+        },
+        {
+          "properties": {
+            "capability": { "const": "PROCESS_EXEC" },
+            "target": { "$ref": "event.schema.json#/$defs/processTarget" }
+          }
+        },
+        {
+          "properties": {
+            "capability": { "const": "NETWORK_EGRESS" },
+            "target": { "$ref": "event.schema.json#/$defs/networkTarget" }
+          }
+        },
+        {
+          "properties": {
+            "capability": { "const": "CREDENTIAL_READ" },
+            "target": { "$ref": "event.schema.json#/$defs/credentialTarget" }
+          }
+        },
+        {
+          "properties": {
+            "capability": { "const": "TOOL_INVOKE" },
+            "target": { "$ref": "event.schema.json#/$defs/toolTarget" }
+          }
+        }
+      ]
+    },
+    "responseMap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["INFO", "LOW", "MEDIUM", "HIGH", "CRITICAL"],
+      "properties": {
+        "INFO": { "const": "LOG" },
+        "LOW": { "enum": ["LOG", "REQUIRE_APPROVAL", "BLOCK", "TERMINATE"] },
+        "MEDIUM": { "enum": ["REQUIRE_APPROVAL", "BLOCK", "TERMINATE"] },
+        "HIGH": { "enum": ["BLOCK", "TERMINATE"] },
+        "CRITICAL": { "const": "TERMINATE" }
+      }
+    }
+  }
+}

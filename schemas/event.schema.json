@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arrm.local/schemas/event.schema.json",
+  "title": "ARRM canonical event v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "event_id",
+    "observed_at",
+    "sequence",
+    "run_id",
+    "agent_id",
+    "capability",
+    "target",
+    "source"
+  ],
+  "properties": {
+    "schema_version": { "const": "0.1" },
+    "event_id": { "$ref": "#/$defs/id" },
+    "observed_at": { "type": "string", "format": "date-time" },
+    "sequence": { "type": "integer", "minimum": 1 },
+    "run_id": { "$ref": "#/$defs/id" },
+    "agent_id": { "$ref": "#/$defs/id" },
+    "capability": {
+      "enum": [
+        "FILESYSTEM_READ",
+        "FILESYSTEM_WRITE",
+        "PROCESS_EXEC",
+        "NETWORK_EGRESS",
+        "CREDENTIAL_READ",
+        "TOOL_INVOKE",
+        "UNCLASSIFIED"
+      ]
+    },
+    "target": { "type": "object" },
+    "source": { "enum": ["wrapper", "tool_gateway", "test_fixture"] }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "capability": { "const": "FILESYSTEM_READ" },
+        "target": { "$ref": "#/$defs/fileTarget" }
+      }
+    },
+    {
+      "properties": {
+        "capability": { "const": "FILESYSTEM_WRITE" },
+        "target": { "$ref": "#/$defs/fileTarget" }
+      }
+    },
+    {
+      "properties": {
+        "capability": { "const": "PROCESS_EXEC" },
+        "target": { "$ref": "#/$defs/processTarget" }
+      }
+    },
+    {
+      "properties": {
+        "capability": { "const": "NETWORK_EGRESS" },
+        "target": { "$ref": "#/$defs/networkTarget" }
+      }
+    },
+    {
+      "properties": {
+        "capability": { "const": "CREDENTIAL_READ" },
+        "target": { "$ref": "#/$defs/credentialTarget" }
+      }
+    },
+    {
+      "properties": {
+        "capability": { "const": "TOOL_INVOKE" },
+        "target": { "$ref": "#/$defs/toolTarget" }
+      }
+    },
+    {
+      "properties": {
+        "capability": { "const": "UNCLASSIFIED" },
+        "target": { "$ref": "#/$defs/opaqueTarget" }
+      }
+    }
+  ],
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "nonNulString": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096,
+      "pattern": "^[^\\u0000]+$"
+    },
+    "fileTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "path"],
+      "properties": {
+        "kind": { "const": "path" },
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "^(?:[A-Za-z]:/|/)[^\\u0000]*$"
+        }
+      }
+    },
+    "processTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "executable", "args", "shell"],
+      "properties": {
+        "kind": { "const": "process" },
+        "executable": { "$ref": "#/$defs/nonNulString" },
+        "args": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "type": "string",
+            "maxLength": 4096,
+            "pattern": "^[^\\u0000]*$"
+          }
+        },
+        "shell": { "type": "boolean" }
+      }
+    },
+    "networkTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "scheme", "host", "port"],
+      "properties": {
+        "kind": { "const": "network_origin" },
+        "scheme": { "enum": ["http", "https"] },
+        "host": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 253,
+          "pattern": "^[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?$"
+        },
+        "port": { "type": "integer", "minimum": 1, "maximum": 65535 }
+      }
+    },
+    "credentialTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "provider", "name"],
+      "properties": {
+        "kind": { "const": "credential" },
+        "provider": {
+          "enum": ["environment", "file", "keychain", "cloud_metadata", "other"]
+        },
+        "name": { "$ref": "#/$defs/nonNulString" }
+      }
+    },
+    "toolTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "name"],
+      "properties": {
+        "kind": { "const": "tool" },
+        "name": { "$ref": "#/$defs/nonNulString" }
+      }
+    },
+    "opaqueTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "operation"],
+      "properties": {
+        "kind": { "const": "opaque" },
+        "operation": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[^\\u0000]+$"
+        }
+      }
+    }
+  }
+}

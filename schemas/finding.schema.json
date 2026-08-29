@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arrm.local/schemas/finding.schema.json",
+  "title": "ARRM capability drift finding v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "finding_id",
+    "run_id",
+    "event_id",
+    "type",
+    "capability",
+    "target",
+    "declared",
+    "reason",
+    "severity",
+    "decision"
+  ],
+  "properties": {
+    "schema_version": { "const": "0.1" },
+    "finding_id": { "$ref": "event.schema.json#/$defs/id" },
+    "run_id": { "$ref": "event.schema.json#/$defs/id" },
+    "event_id": { "$ref": "event.schema.json#/$defs/id" },
+    "type": { "const": "CAPABILITY_DRIFT" },
+    "capability": {
+      "enum": [
+        "FILESYSTEM_READ",
+        "FILESYSTEM_WRITE",
+        "PROCESS_EXEC",
+        "NETWORK_EGRESS",
+        "CREDENTIAL_READ",
+        "TOOL_INVOKE",
+        "UNCLASSIFIED"
+      ]
+    },
+    "target": { "type": "object" },
+    "declared": { "const": false },
+    "reason": {
+      "enum": ["NO_MATCHING_ALLOW_RULE", "UNCLASSIFIED_OPERATION"]
+    },
+    "severity": { "enum": ["MEDIUM", "HIGH", "CRITICAL"] },
+    "decision": { "enum": ["REQUIRE_APPROVAL", "BLOCK", "TERMINATE"] }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "capability": { "const": "FILESYSTEM_READ" },
+        "target": { "$ref": "event.schema.json#/$defs/fileTarget" },
+        "reason": { "const": "NO_MATCHING_ALLOW_RULE" },
+        "severity": { "const": "MEDIUM" },
+        "decision": { "enum": ["REQUIRE_APPROVAL", "BLOCK", "TERMINATE"] }
+      }
+    },
+    {
+      "properties": {
+        "capability": { "const": "FILESYSTEM_WRITE" },
+        "target": { "$ref": "event.schema.json#/$defs/fileTarget" },
+        "reason": { "const": "NO_MATCHING_ALLOW_RULE" },
+        "severity": { "const": "HIGH" },
+        "decision": { "enum": ["BLOCK", "TERMINATE"] }
+      }
+    },
+    {
+      "properties": {
+        "capability": { "const": "PROCESS_EXEC" },
+        "target": { "$ref": "event.schema.json#/$defs/processTarget" },
+        "reason": { "const": "NO_MATCHING_ALLOW_RULE" },
+        "severity": { "const": "HIGH" },
+        "decision": { "enum": ["BLOCK", "TERMINATE"] }
+      }
+    },
+    {
+      "properties": {
+        "capability": { "const": "NETWORK_EGRESS" },
+        "target": { "$ref": "event.schema.json#/$defs/networkTarget" },
+        "reason": { "const": "NO_MATCHING_ALLOW_RULE" },
+        "severity": { "const": "HIGH" },
+        "decision": { "enum": ["BLOCK", "TERMINATE"] }
+      }
+    },
+    {
+      "properties": {
+        "capability": { "const": "CREDENTIAL_READ" },
+        "target": { "$ref": "event.schema.json#/$defs/credentialTarget" },
+        "reason": { "const": "NO_MATCHING_ALLOW_RULE" },
+        "severity": { "const": "CRITICAL" },
+        "decision": { "const": "TERMINATE" }
+      }
+    },
+    {
+      "properties": {
+        "capability": { "const": "TOOL_INVOKE" },
+        "target": { "$ref": "event.schema.json#/$defs/toolTarget" },
+        "reason": { "const": "NO_MATCHING_ALLOW_RULE" },
+        "severity": { "const": "HIGH" },
+        "decision": { "enum": ["BLOCK", "TERMINATE"] }
+      }
+    },
+    {
+      "properties": {
+        "capability": { "const": "UNCLASSIFIED" },
+        "target": { "$ref": "event.schema.json#/$defs/opaqueTarget" },
+        "reason": { "const": "UNCLASSIFIED_OPERATION" },
+        "severity": { "const": "HIGH" },
+        "decision": { "enum": ["BLOCK", "TERMINATE"] }
+      }
+    }
+  ]
+}

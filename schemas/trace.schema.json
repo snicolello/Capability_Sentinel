@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arrm.local/schemas/trace.schema.json",
+  "title": "ARRM trace v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "run_id", "agent_id", "platform", "events"],
+  "properties": {
+    "schema_version": { "const": "0.1" },
+    "run_id": { "$ref": "event.schema.json#/$defs/id" },
+    "agent_id": { "$ref": "event.schema.json#/$defs/id" },
+    "platform": { "enum": ["posix", "windows"] },
+    "events": {
+      "type": "array",
+      "maxItems": 100000,
+      "items": { "$ref": "event.schema.json" }
+    }
+  }
+}
