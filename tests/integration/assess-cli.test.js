@@ -54,24 +54,27 @@ test('invalid JSON produces a controlled content-safe error and no assessment', 
   assert.equal(result.stderr.includes('ALLOW'), false);
 });
 
-test('schema-valid unsupported capability fails with no assessment', async (context) => {
+test('valid UNCLASSIFIED input produces a controlled HIGH/BLOCK assessment', async (context) => {
   const directory = await mkdtemp(path.join(tmpdir(), 'arrm-cli-'));
   context.after(() => rm(directory, { recursive: true, force: true }));
-  const tracePath = path.join(directory, 'unsupported-trace.json');
+  const tracePath = path.join(directory, 'unclassified-trace.json');
   const trace = structuredClone(normalTrace);
   trace.events = [{
     ...trace.events[0],
-    capability: 'FILESYSTEM_WRITE',
-    target: { kind: 'path', path: 'C:/work/repo/output.txt' },
+    capability: 'UNCLASSIFIED',
+    target: { kind: 'opaque', operation: 'unrecognized-boundary-operation' },
   }];
   await writeFile(tracePath, JSON.stringify(trace));
   const result = spawnSync(process.execPath, [cliPath, 'assess', policyPath, tracePath, '--json'], {
     cwd: repositoryRoot,
     encoding: 'utf8',
   });
-  assert.equal(result.status, 65);
-  assert.equal(result.stdout, '');
-  assert.match(result.stderr, /^ARRM_ERROR UNSUPPORTED_CAPABILITY:/u);
+  assert.equal(result.status, 4);
+  assert.equal(result.stderr, '');
+  const assessment = JSON.parse(result.stdout);
+  assert.equal(assessment.overall_decision, 'BLOCK');
+  assert.equal(assessment.findings[0].reason, 'UNCLASSIFIED_OPERATION');
+  assert.equal(assessment.findings[0].severity, 'HIGH');
 });
 
 test('malformed policy produces a controlled error and no assessment', async (context) => {
@@ -91,26 +94,66 @@ test('malformed policy produces a controlled error and no assessment', async (co
   assert.equal(result.stderr.includes('ALLOW'), false);
 });
 
-test('schema-valid unsupported policy capability fails with no assessment', async (context) => {
+test('remaining declarable capabilities match through the CLI pipeline', async (context) => {
   const directory = await mkdtemp(path.join(tmpdir(), 'arrm-cli-'));
   context.after(() => rm(directory, { recursive: true, force: true }));
-  const unsupportedPolicyPath = path.join(directory, 'unsupported-policy.json');
+  const expandedPolicyPath = path.join(directory, 'expanded-policy.json');
+  const expandedTracePath = path.join(directory, 'expanded-trace.json');
   const policy = structuredClone(policyFixture);
-  policy.rules = [{
-    id: 'write-output',
-    capability: 'FILESYSTEM_WRITE',
-    target: { kind: 'path_scope', path: 'output', recursive: true },
-  }];
-  await writeFile(unsupportedPolicyPath, JSON.stringify(policy));
-  const tracePath = path.join(repositoryRoot, 'fixtures', 'traces', 'normal-run.json');
+  policy.rules = [
+    {
+      id: 'write-output',
+      capability: 'FILESYSTEM_WRITE',
+      target: { kind: 'path_scope', path: 'output', recursive: true },
+    },
+    {
+      id: 'read-api-token',
+      capability: 'CREDENTIAL_READ',
+      target: { kind: 'credential', provider: 'environment', name: 'API_TOKEN' },
+    },
+    {
+      id: 'invoke-repository-search',
+      capability: 'TOOL_INVOKE',
+      target: { kind: 'tool', name: 'repository_search' },
+    },
+  ];
+  const trace = structuredClone(normalTrace);
+  trace.events = [
+    {
+      ...trace.events[0],
+      event_id: 'evt-write',
+      sequence: 1,
+      capability: 'FILESYSTEM_WRITE',
+      target: { kind: 'path', path: 'C:/work/repo/output/result.json' },
+    },
+    {
+      ...trace.events[0],
+      event_id: 'evt-credential',
+      sequence: 2,
+      capability: 'CREDENTIAL_READ',
+      target: { kind: 'credential', provider: 'environment', name: 'API_TOKEN' },
+    },
+    {
+      ...trace.events[0],
+      event_id: 'evt-tool',
+      sequence: 3,
+      capability: 'TOOL_INVOKE',
+      target: { kind: 'tool', name: 'repository_search' },
+    },
+  ];
+  await writeFile(expandedPolicyPath, JSON.stringify(policy));
+  await writeFile(expandedTracePath, JSON.stringify(trace));
   const result = spawnSync(
     process.execPath,
-    [cliPath, 'assess', unsupportedPolicyPath, tracePath, '--json'],
+    [cliPath, 'assess', expandedPolicyPath, expandedTracePath, '--json'],
     { cwd: repositoryRoot, encoding: 'utf8' },
   );
-  assert.equal(result.status, 65);
-  assert.equal(result.stdout, '');
-  assert.match(result.stderr, /^ARRM_ERROR UNSUPPORTED_CAPABILITY:/u);
+  assert.equal(result.status, 0);
+  assert.equal(result.stderr, '');
+  const assessment = JSON.parse(result.stdout);
+  assert.equal(assessment.overall_decision, 'ALLOW');
+  assert.equal(assessment.matched_policy, 3);
+  assert.equal(assessment.capability_drift, 0);
 });
 
 test('invalid command usage exits 64 without an assessment', () => {

@@ -34,10 +34,10 @@ export function validateTraceSemantics(trace) {
     if (!supported.has(event.capability)) {
       throw new InputError(
         'UNSUPPORTED_CAPABILITY',
-        'trace contains a capability unsupported by the M1 evaluator',
+        'trace contains a capability unsupported by the evaluator',
       );
     }
-    if (event.capability === 'FILESYSTEM_READ') {
+    if (event.capability === 'FILESYSTEM_READ' || event.capability === 'FILESYSTEM_WRITE') {
       assertCanonicalAbsolutePath(event.target.path, trace.platform, 'event path');
     } else if (event.capability === 'NETWORK_EGRESS') {
       validateNetworkHost(event.target.host);

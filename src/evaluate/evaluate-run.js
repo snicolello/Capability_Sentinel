@@ -45,7 +45,9 @@ export function evaluateRun(policy, trace) {
       capability: event.capability,
       target: event.target,
       declared: false,
-      reason: 'NO_MATCHING_ALLOW_RULE',
+      reason: event.capability === 'UNCLASSIFIED'
+        ? 'UNCLASSIFIED_OPERATION'
+        : 'NO_MATCHING_ALLOW_RULE',
       severity,
       decision,
     });

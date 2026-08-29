@@ -2,16 +2,16 @@
 
 ## Current objective and stop gate
 
-ARRM M0 and M1 are complete in implementation commit `e0cc0ca` (`feat: implement deterministic ARRM M1 slice`). The repository now contains a deterministic offline assessor for the approved thin vertical slice:
+ARRM M0 and M1 are complete in implementation commit `e0cc0ca` (`feat: implement deterministic ARRM M1 slice`). M2 is also complete. The repository now contains a deterministic offline assessor for the full approved v0.1 capability taxonomy:
 
 ```text
 load strict policy and canonical trace
 → validate structure and semantics
-→ evaluate FILESYSTEM_READ, PROCESS_EXEC, and NETWORK_EGRESS
+→ evaluate all seven trace capabilities against all six declarable capabilities
 → emit canonical deterministic JSON
 ```
 
-Do not automatically broaden the implementation. M2 is the next planned milestone, but it requires explicit user authorization. A real collector, enforcement integration, effective-capability graph, dashboard, persistence, YAML, AEF integration, and other deferred subsystems remain out of scope.
+Do not automatically broaden the implementation. M3 is the next planned milestone and requires separate explicit user authorization. A real collector, enforcement integration, effective-capability graph, dashboard, persistence, YAML, AEF integration, and other deferred subsystems remain out of scope.
 
 ## Repository state at this handoff
 
@@ -19,6 +19,7 @@ Do not automatically broaden the implementation. M2 is the next planned mileston
 - Branch: `main`
 - Approved design commit: `b1e20dc` — `docs: define ARRM v0.1 security model`
 - M0/M1 implementation commit: `e0cc0ca` — `feat: implement deterministic ARRM M1 slice`
+- M2 implementation: complete; use `git log -1 --oneline` for the implementation commit.
 - Planning and handoff documents now live under `docs/`.
 - The documentation relocation/progress refresh is committed after `e0cc0ca`; use `git log -2 --oneline` for the exact latest commit.
 - Inspect `git status` before editing and preserve any later user work.
@@ -53,6 +54,14 @@ Do not automatically broaden the implementation. M2 is the next planned mileston
 - The M1 CLI is `arrm assess POLICY.json TRACE.json --json`.
 - Schema-valid capabilities outside `FILESYSTEM_READ`, `PROCESS_EXEC`, and `NETWORK_EGRESS` are controlled input errors in M1; they never produce `ALLOW`.
 
+### M2 — complete deterministic core
+
+- `FILESYSTEM_WRITE` reuses the pure lexical complete-segment path matcher.
+- `CREDENTIAL_READ` matches exact provider/name tuples and `TOOL_INVOKE` matches exact tool names.
+- `UNCLASSIFIED` remains impossible to declare, never matches, and always produces `UNCLASSIFIED_OPERATION` with `HIGH/BLOCK` under the constrained default response map.
+- All seven trace capabilities have explicit severity and evaluation paths; unknown evaluator states fail instead of allowing.
+- All six policy capabilities pass semantic validation once their matcher is available.
+
 ## Committed fixtures and verified behavior
 
 ```powershell
@@ -65,12 +74,12 @@ node src/cli.js assess fixtures/policies/example-agent.json fixtures/traces/netw
 
 Verification baseline at handoff:
 
-- 38 automated tests pass.
+- 47 automated tests pass.
 - All five schemas compile in strict Draft 2020-12 mode.
 - Normal fixture: 2 observed, 2 matched, 0 drift, overall `ALLOW`, exit `0`.
 - Network-drift fixture: one derived `NETWORK_EGRESS`, `HIGH/BLOCK` finding, overall `BLOCK`, exit `4`.
 - Both commands are byte-identical across repeated runs and match committed expected JSON.
-- Malformed or unsupported policy/trace data exits `65`, writes no assessment to stdout, and never prints an `ALLOW` conclusion.
+- Malformed or unknown policy/trace data exits `65`, writes no assessment to stdout, and never prints an `ALLOW` conclusion.
 - Invalid command usage exits `64`; unexpected internal errors exit `70` with no security conclusion.
 
 ## Authoritative documents
@@ -102,16 +111,14 @@ Read these before further implementation:
 
 ## Next planned milestone if explicitly authorized
 
-M2 completes the deterministic core without adding runtime integration:
+M3 completes CLI and audit presentation without adding runtime integration:
 
-1. Add explicit total evaluation paths for `FILESYSTEM_WRITE`, `CREDENTIAL_READ`, `TOOL_INVOKE`, and `UNCLASSIFIED`.
-2. Allow every declarable policy capability through semantic validation once its matcher is implemented.
-3. Make valid `UNCLASSIFIED` events always produce the documented `HIGH/BLOCK` result and remain impossible to declare in policy.
-4. Extend severity/response coverage to the complete approved taxonomy.
-5. Add focused unit and schema tests for every new total path and ensure no unexpected state falls through to allow.
-6. Keep M3 presentation work, M4 full fixture matrix, M5 review, and M6 runtime discovery separate.
+1. Add the stable human-readable text renderer.
+2. Finish CLI diagnostics and the documented `0/3/4/5/64/65/70` exit-code presentation contract.
+3. Keep prescribed decisions distinct from enforcement outcomes in every output mode.
+4. Do not pull in M4 scenario fixtures or M6 runtime discovery.
 
-Do not treat M2 authorization as permission to add full scenarios B, D, and E automatically where the plan assigns them to M4, or to add a collector, enforcement, YAML, persistence, AEF integration, capability composition, or OS controls.
+Do not treat completion of M2 as permission to add full scenarios B, D, and E automatically where the plan assigns them to M4, or to add a collector, enforcement, YAML, persistence, AEF integration, capability composition, or OS controls.
 
 ## Suggested fresh-chat prompt
 
@@ -119,13 +126,13 @@ Do not treat M2 authorization as permission to add full scenarios B, D, and E au
 >
 > Read `docs/CONTEXT_HANDOFF.md`, then `docs/IMPLEMENTATION_PLAN.md`, the authoritative design documents, and the schemas. Inspect `git status` and preserve existing work.
 >
-> M0 and M1 are complete at implementation commit `e0cc0ca`. Do not repeat them. Ask for or confirm explicit authorization before beginning M2, and do not add runtime collection, enforcement, YAML, persistence, dashboards, AEF integration, capability composition, or other deferred scope.
+> M0 and M1 are complete at implementation commit `e0cc0ca`; M2 is also complete. Do not repeat them. Ask for or confirm explicit authorization before beginning M3, and do not add runtime collection, enforcement, YAML, persistence, dashboards, AEF integration, capability composition, or other deferred scope.
 
 ## Stop conditions
 
 Stop and ask for direction if:
 
-- M2 or any later milestone has not been explicitly authorized;
+- M3 or any later milestone has not been explicitly authorized;
 - a required change would weaken an approved schema or security invariant;
 - completing a matcher would require runtime target resolution, a collector, or another deferred subsystem;
 - the installed Node major must change or a new dependency family is proposed;

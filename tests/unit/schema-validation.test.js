@@ -55,15 +55,47 @@ test('policy/trace platform and agent mismatches fail', () => {
   );
 });
 
-test('schema-valid capabilities outside M1 fail closed', () => {
+test('all declarable capability rules pass semantic validation', () => {
+  const policy = structuredClone(policyFixture);
+  policy.rules = [
+    ...policy.rules,
+    {
+      id: 'write-output',
+      capability: 'FILESYSTEM_WRITE',
+      target: { kind: 'path_scope', path: 'output', recursive: true },
+    },
+    {
+      id: 'read-api-token',
+      capability: 'CREDENTIAL_READ',
+      target: { kind: 'credential', provider: 'environment', name: 'API_TOKEN' },
+    },
+    {
+      id: 'invoke-repository-search',
+      capability: 'TOOL_INVOKE',
+      target: { kind: 'tool', name: 'repository_search' },
+    },
+  ];
+  validatePolicyStructure(policy);
+  assert.equal(validatePolicySemantics(policy), policy);
+});
+
+test('a valid UNCLASSIFIED event passes semantic validation but cannot be declared', () => {
+  const trace = structuredClone(normalTrace);
+  trace.events = [{
+    ...trace.events[0],
+    capability: 'UNCLASSIFIED',
+    target: { kind: 'opaque', operation: 'unrecognized-boundary-operation' },
+  }];
+  validateTraceStructure(trace);
+  assert.equal(validateTraceSemantics(trace), trace);
+
   const policy = structuredClone(policyFixture);
   policy.rules = [{
-    id: 'write-output',
-    capability: 'FILESYSTEM_WRITE',
-    target: { kind: 'path_scope', path: 'output', recursive: true },
+    id: 'unclassified-rule',
+    capability: 'UNCLASSIFIED',
+    target: { kind: 'opaque', operation: 'unrecognized-boundary-operation' },
   }];
-  validatePolicyStructure(policy);
-  assert.throws(() => validatePolicySemantics(policy), { code: 'UNSUPPORTED_CAPABILITY' });
+  assert.throws(() => validatePolicyStructure(policy), { code: 'SCHEMA_VALIDATION_FAILED' });
 });
 
 test('event identifiers must leave room for their derived finding identifier', () => {

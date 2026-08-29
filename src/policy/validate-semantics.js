@@ -1,8 +1,8 @@
-import { SUPPORTED_CAPABILITIES } from '../constants.js';
+import { DECLARABLE_CAPABILITIES } from '../constants.js';
 import { InputError } from '../errors.js';
 import { assertCanonicalAbsolutePath, normalizeLexicalPath } from '../normalize/path.js';
 
-const supported = new Set(SUPPORTED_CAPABILITIES);
+const supported = new Set(DECLARABLE_CAPABILITIES);
 
 function validateNetworkHost(host) {
   if (host.split('.').some((label) => (
@@ -26,10 +26,10 @@ export function validatePolicySemantics(policy) {
     if (!supported.has(rule.capability)) {
       throw new InputError(
         'UNSUPPORTED_CAPABILITY',
-        'policy contains a capability unsupported by the M1 evaluator',
+        'policy contains a capability unsupported by the evaluator',
       );
     }
-    if (rule.capability === 'FILESYSTEM_READ') {
+    if (rule.capability === 'FILESYSTEM_READ' || rule.capability === 'FILESYSTEM_WRITE') {
       normalizeLexicalPath(rule.target.path, policy.platform, { label: 'policy path' });
     } else if (rule.capability === 'NETWORK_EGRESS') {
       validateNetworkHost(rule.target.host);
