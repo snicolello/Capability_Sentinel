@@ -60,9 +60,9 @@ test('all declarable capability rules pass semantic validation', () => {
   policy.rules = [
     ...policy.rules,
     {
-      id: 'write-output',
-      capability: 'FILESYSTEM_WRITE',
-      target: { kind: 'path_scope', path: 'output', recursive: true },
+      id: 'registry-origin',
+      capability: 'NETWORK_EGRESS',
+      target: { kind: 'network_origin', scheme: 'https', host: 'registry.npmjs.org', port: 443 },
     },
     {
       id: 'read-api-token',

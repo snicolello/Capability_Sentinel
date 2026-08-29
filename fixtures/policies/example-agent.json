@@ -25,6 +25,27 @@
         ],
         "shell": false
       }
+    },
+    {
+      "id": "write-output",
+      "capability": "FILESYSTEM_WRITE",
+      "target": {
+        "kind": "path_scope",
+        "path": "output",
+        "recursive": true
+      }
+    },
+    {
+      "id": "git-status",
+      "capability": "PROCESS_EXEC",
+      "target": {
+        "kind": "process",
+        "executable": "git.exe",
+        "args": [
+          "status"
+        ],
+        "shell": false
+      }
     }
   ],
   "response_map": {

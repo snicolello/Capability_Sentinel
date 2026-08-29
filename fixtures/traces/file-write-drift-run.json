@@ -1,0 +1,22 @@
+{
+  "schema_version": "0.1",
+  "run_id": "run-file-write-drift",
+  "agent_id": "repo-maintainer",
+  "platform": "windows",
+  "events": [
+    {
+      "schema_version": "0.1",
+      "event_id": "evt-file-write-001",
+      "observed_at": "2026-08-29T14:34:17.084Z",
+      "sequence": 1,
+      "run_id": "run-file-write-drift",
+      "agent_id": "repo-maintainer",
+      "capability": "FILESYSTEM_WRITE",
+      "target": {
+        "kind": "path",
+        "path": "C:/Windows/System32/drivers/etc/hosts"
+      },
+      "source": "test_fixture"
+    }
+  ]
+}

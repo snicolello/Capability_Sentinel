@@ -1,0 +1,42 @@
+{
+  "agent_id": "repo-maintainer",
+  "capability_drift": 1,
+  "evaluations": [
+    {
+      "decision": "BLOCK",
+      "event_id": "evt-process-001",
+      "finding_id": "finding:evt-process-001:capability-drift",
+      "outcome": "DRIFT"
+    }
+  ],
+  "events_observed": 1,
+  "findings": [
+    {
+      "capability": "PROCESS_EXEC",
+      "decision": "BLOCK",
+      "declared": false,
+      "event_id": "evt-process-001",
+      "finding_id": "finding:evt-process-001:capability-drift",
+      "reason": "NO_MATCHING_ALLOW_RULE",
+      "run_id": "run-process-drift",
+      "schema_version": "0.1",
+      "severity": "HIGH",
+      "target": {
+        "args": [
+          "-NoProfile",
+          "-Command",
+          "Get-ChildItem"
+        ],
+        "executable": "powershell.exe",
+        "kind": "process",
+        "shell": false
+      },
+      "type": "CAPABILITY_DRIFT"
+    }
+  ],
+  "matched_policy": 0,
+  "overall_decision": "BLOCK",
+  "policy_id": "repo-maintainer-v1",
+  "run_id": "run-process-drift",
+  "schema_version": "0.1"
+}

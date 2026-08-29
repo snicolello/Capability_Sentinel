@@ -63,7 +63,7 @@ function unmatchedEvent(capability, target, eventId) {
 test('every capability has an explicit unmatched severity and response path', () => {
   const cases = [
     ['FILESYSTEM_READ', { kind: 'path', path: 'C:/work/repo/unapproved.txt' }, 'MEDIUM', 'REQUIRE_APPROVAL'],
-    ['FILESYSTEM_WRITE', { kind: 'path', path: 'C:/work/repo/output/result.txt' }, 'HIGH', 'BLOCK'],
+    ['FILESYSTEM_WRITE', { kind: 'path', path: 'C:/outside/result.txt' }, 'HIGH', 'BLOCK'],
     ['PROCESS_EXEC', { kind: 'process', executable: 'node.exe', args: ['script.js'], shell: false }, 'HIGH', 'BLOCK'],
     ['NETWORK_EGRESS', { kind: 'network_origin', scheme: 'https', host: 'example.test', port: 443 }, 'HIGH', 'BLOCK'],
     ['CREDENTIAL_READ', { kind: 'credential', provider: 'environment', name: 'API_TOKEN' }, 'CRITICAL', 'TERMINATE'],
@@ -94,7 +94,7 @@ test('response maps may strengthen but never weaken an unmatched capability deci
   );
   const write = evaluateRun(
     strengthened,
-    unmatchedEvent('FILESYSTEM_WRITE', { kind: 'path', path: 'C:/work/repo/output/result.txt' }, 'evt-strengthened-write'),
+    unmatchedEvent('FILESYSTEM_WRITE', { kind: 'path', path: 'C:/outside/result.txt' }, 'evt-strengthened-write'),
   );
   assert.equal(read.findings[0].decision, 'BLOCK');
   assert.equal(write.findings[0].decision, 'TERMINATE');

@@ -1,0 +1,28 @@
+{
+  "schema_version": "0.1",
+  "run_id": "run-process-drift",
+  "agent_id": "repo-maintainer",
+  "platform": "windows",
+  "events": [
+    {
+      "schema_version": "0.1",
+      "event_id": "evt-process-001",
+      "observed_at": "2026-08-29T14:35:17.084Z",
+      "sequence": 1,
+      "run_id": "run-process-drift",
+      "agent_id": "repo-maintainer",
+      "capability": "PROCESS_EXEC",
+      "target": {
+        "kind": "process",
+        "executable": "powershell.exe",
+        "args": [
+          "-NoProfile",
+          "-Command",
+          "Get-ChildItem"
+        ],
+        "shell": false
+      },
+      "source": "test_fixture"
+    }
+  ]
+}

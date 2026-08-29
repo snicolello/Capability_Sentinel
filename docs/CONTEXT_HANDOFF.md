@@ -2,7 +2,7 @@
 
 ## Current objective and stop gate
 
-ARRM M0 and M1 are complete in implementation commit `e0cc0ca` (`feat: implement deterministic ARRM M1 slice`), and M2 is complete in commit `0014e53` (`feat: complete deterministic ARRM M2 core`). M3 is also complete. The repository now contains a deterministic offline assessor for the full approved v0.1 capability taxonomy:
+ARRM M0 and M1 are complete in implementation commit `e0cc0ca` (`feat: implement deterministic ARRM M1 slice`), M2 is complete in commit `0014e53` (`feat: complete deterministic ARRM M2 core`), and M3 is complete in commit `ccd4b03` (`feat: complete ARRM M3 CLI presentation`). M4 is also complete. The repository now contains a deterministic offline assessor for the full approved v0.1 capability taxonomy:
 
 ```text
 load strict policy and canonical trace
@@ -11,7 +11,7 @@ load strict policy and canonical trace
 → emit canonical deterministic JSON or stable human-readable text
 ```
 
-Do not automatically broaden the implementation. M4 is the next planned milestone and requires separate explicit user authorization. A real collector, enforcement integration, effective-capability graph, dashboard, persistence, YAML, AEF integration, and other deferred subsystems remain out of scope.
+Do not automatically broaden the implementation. M5 is the next planned milestone and requires separate explicit user authorization. A real collector, enforcement integration, effective-capability graph, dashboard, persistence, YAML, AEF integration, and other deferred subsystems remain out of scope.
 
 ## Repository state at this handoff
 
@@ -20,7 +20,8 @@ Do not automatically broaden the implementation. M4 is the next planned mileston
 - Approved design commit: `b1e20dc` — `docs: define ARRM v0.1 security model`
 - M0/M1 implementation commit: `e0cc0ca` — `feat: implement deterministic ARRM M1 slice`
 - M2 implementation commit: `0014e53` — `feat: complete deterministic ARRM M2 core`
-- M3 implementation: complete; use `git log -1 --oneline` for the implementation commit.
+- M3 implementation commit: `ccd4b03` — `feat: complete ARRM M3 CLI presentation`
+- M4 implementation: complete; use `git log -1 --oneline` for the implementation commit.
 - Planning and handoff documents now live under `docs/`.
 - The documentation relocation/progress refresh is committed after `e0cc0ca`; use `git log -2 --oneline` for the exact latest commit.
 - Inspect `git status` before editing and preserve any later user work.
@@ -71,6 +72,14 @@ Do not automatically broaden the implementation. M4 is the next planned mileston
 - Valid assessment exits cover `0/3/4/5`; usage, input, and internal failures remain distinct at `64/65/70` and produce no security conclusion.
 - Output-file behavior was not approved and remains unimplemented.
 
+### M4 — full fixture and hardening matrix
+
+- Scenarios B, D, and E now have canonical trace and expected-assessment fixtures alongside scenarios A and C.
+- All five scenarios run twice, match their canonical expected bytes, and validate as complete assessments; every finding also validates independently.
+- Scenario E preserves event/finding order while `CRITICAL/TERMINATE` credential drift dominates `HIGH/BLOCK` network drift.
+- Mandatory malformed policy/trace, duplicate ID, sequence, envelope, `UNCLASSIFIED`, empty-trace, and rule-order cases are automated.
+- Credential values are rejected structurally and are proven absent from diagnostics and assessment output; the non-secret credential identifier remains auditable.
+
 ## Committed fixtures and verified behavior
 
 ```powershell
@@ -81,14 +90,19 @@ node src/cli.js assess fixtures/policies/example-agent.json fixtures/traces/norm
 node src/cli.js assess fixtures/policies/example-agent.json fixtures/traces/network-drift-run.json --json
 node src/cli.js assess fixtures/policies/example-agent.json fixtures/traces/normal-run.json
 node src/cli.js assess fixtures/policies/example-agent.json fixtures/traces/network-drift-run.json
+node src/cli.js assess fixtures/policies/example-agent.json fixtures/traces/file-write-drift-run.json --json
+node src/cli.js assess fixtures/policies/example-agent.json fixtures/traces/process-drift-run.json --json
+node src/cli.js assess fixtures/policies/example-agent.json fixtures/traces/credential-drift-run.json --json
 ```
 
 Verification baseline at handoff:
 
-- 52 automated tests pass.
+- 58 automated tests pass.
 - All five schemas compile in strict Draft 2020-12 mode.
 - Normal fixture: 2 observed, 2 matched, 0 drift, overall `ALLOW`, exit `0`.
 - Network-drift fixture: one derived `NETWORK_EGRESS`, `HIGH/BLOCK` finding, overall `BLOCK`, exit `4`.
+- File-write and process fixtures each produce one `HIGH/BLOCK` finding and exit `4`.
+- Credential fixture produces ordered `CRITICAL/TERMINATE` and `HIGH/BLOCK` findings, overall `TERMINATE`, and exit `5`.
 - JSON commands are byte-identical across repeated runs and match committed expected JSON; text output is also byte-stable across repeated runs.
 - Malformed or unknown policy/trace data exits `65`, writes no assessment to stdout, and never prints an `ALLOW` conclusion.
 - Invalid command usage exits `64`; unexpected internal errors exit `70` with no security conclusion.
@@ -122,14 +136,14 @@ Read these before further implementation:
 
 ## Next planned milestone if explicitly authorized
 
-M4 completes the approved fixture and hardening matrix without adding runtime integration:
+M5 performs the v0.1 review and stop gate without adding runtime integration:
 
-1. Add the approved scenario B, D, and E fixtures and expected assessments.
-2. Automate every row in both test-mapping tables, including empty traces and mandatory failures.
-3. Validate every scenario assessment/finding and demonstrate repeated byte equality.
-4. Retain secret-safe diagnostics and keep M6 runtime discovery deferred.
+1. Trace all ten definition-of-done statements to tests or explicit limitations.
+2. Re-run the threat model against the implementation and reconcile documentation claims.
+3. Review the dependency footprint, trusted surface, limits, and diagnostic exposure.
+4. Record lessons learned and stop before any M6 runtime discovery.
 
-Do not treat completion of M3 as permission to add full scenarios B, D, and E automatically where the plan assigns them to M4, or to add a collector, enforcement, YAML, persistence, AEF integration, capability composition, or OS controls.
+Do not treat completion of M4 as permission to add a collector, enforcement, YAML, persistence, AEF integration, capability composition, OS controls, or other M6 work.
 
 ## Suggested fresh-chat prompt
 
@@ -137,13 +151,13 @@ Do not treat completion of M3 as permission to add full scenarios B, D, and E au
 >
 > Read `docs/CONTEXT_HANDOFF.md`, then `docs/IMPLEMENTATION_PLAN.md`, the authoritative design documents, and the schemas. Inspect `git status` and preserve existing work.
 >
-> M0 and M1 are complete at implementation commit `e0cc0ca`; M2 is complete at `0014e53`; M3 is also complete. Do not repeat them. Ask for or confirm explicit authorization before beginning M4, and do not add runtime collection, enforcement, YAML, persistence, dashboards, AEF integration, capability composition, or other deferred scope.
+> M0 and M1 are complete at implementation commit `e0cc0ca`; M2 is complete at `0014e53`; M3 is complete at `ccd4b03`; M4 is also complete. Do not repeat them. Ask for or confirm explicit authorization before beginning M5, and do not add runtime collection, enforcement, YAML, persistence, dashboards, AEF integration, capability composition, or other deferred scope.
 
 ## Stop conditions
 
 Stop and ask for direction if:
 
-- M4 or any later milestone has not been explicitly authorized;
+- M5 or any later milestone has not been explicitly authorized;
 - a required change would weaken an approved schema or security invariant;
 - completing a matcher would require runtime target resolution, a collector, or another deferred subsystem;
 - the installed Node major must change or a new dependency family is proposed;

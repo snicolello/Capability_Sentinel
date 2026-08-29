@@ -19,7 +19,7 @@ test('process target requires exact executable, arguments, and shell flag', () =
   assert.equal(matchTarget(rule, event, policyFixture), true);
   for (const target of [
     { ...event.target, executable: 'npm.exe' },
-    { ...event.target, args: ['test', '--watch'] },
+    { ...event.target, args: ['test', '--', '--watch'] },
     { ...event.target, shell: true },
   ]) {
     assert.equal(matchTarget(rule, { ...event, target }, policyFixture), false);
