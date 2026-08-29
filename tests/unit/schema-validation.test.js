@@ -34,7 +34,11 @@ test('duplicate rule and event identifiers fail semantic validation', () => {
   assert.throws(() => validateTraceSemantics(trace), { code: 'DUPLICATE_EVENT_ID' });
 });
 
-test('sequence gaps and envelope mismatches fail semantic validation', () => {
+test('sequences must start at 1, remain contiguous, and match their envelope', () => {
+  const wrongStart = structuredClone(normalTrace);
+  wrongStart.events[0].sequence = 2;
+  assert.throws(() => validateTraceSemantics(wrongStart), { code: 'INVALID_EVENT_SEQUENCE' });
+
   const sequenceGap = structuredClone(normalTrace);
   sequenceGap.events[1].sequence = 3;
   assert.throws(() => validateTraceSemantics(sequenceGap), { code: 'INVALID_EVENT_SEQUENCE' });

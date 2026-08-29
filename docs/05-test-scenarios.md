@@ -75,7 +75,7 @@ decision=BLOCK
 overall_decision=BLOCK
 ```
 
-Adapter-normalizer unit assertions show that `HTTPS`, `registry.npmjs.org.`, and an omitted HTTPS default port become the canonical tuple above before trace assembly. No suffix or wildcard match is implied.
+The supplied trace already contains the canonical tuple above. Canonicalizing an uppercase scheme, a trailing-dot host, or an omitted default port belongs to the future adapter normalizer and is not implemented or tested in v0.1. No suffix or wildcard match is implied.
 
 ## D. Unauthorized process execution
 
