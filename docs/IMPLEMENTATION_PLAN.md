@@ -6,7 +6,7 @@ This plan converts the approved discovery artifacts into a small, deterministic 
 
 ## Current execution status
 
-Updated 2026-08-29 after completing the M4 working-tree implementation.
+Updated 2026-08-29 after completing the M5 v0.1 review and stop gate.
 
 | Milestone | Status | Evidence |
 |---|---|---|
@@ -15,7 +15,8 @@ Updated 2026-08-29 after completing the M4 working-tree implementation.
 | M2 — complete deterministic core | Complete | All seven event capabilities now have total evaluation paths; all six declarable capabilities have deterministic matchers; focused M2 tests pass. |
 | M3 — complete CLI and audit presentation | Complete | Stable text and canonical JSON modes have parity; all documented exit codes and prescribed-decision wording are tested. |
 | M4 — full fixture and hardening matrix | Complete | Scenarios A–E and every mandatory failure row are automated; scenario outputs and individual findings validate against their schemas. |
-| M5–M6 | Deferred | M5 is the next milestone and requires separate explicit authorization. |
+| M5 — v0.1 review and stop gate | Complete | The ten unique definition-of-done obligations are evidenced, the threat model and documentation are reconciled, the trusted surface is reviewed, lessons are recorded, and v0.1 is formally accepted. |
+| M6 — runtime integration discovery | Not authorized | This is a separate future design gate, not an automatic continuation. |
 
 Current verification baseline:
 
@@ -29,6 +30,7 @@ Current verification baseline:
 - Every scenario assessment and individual finding validates against the normative schemas.
 - Every schema-valid capability is evaluated; malformed or unknown policy/trace input exits `65` and emits no assessment.
 - The production lock uses `ajv@8.20.0`, `ajv-formats@3.0.1`, and `jsonc-parser@3.3.1`; the online npm audit reported zero known vulnerabilities at the verification point.
+- The completed M5 evidence, residual limitations, lessons, and formal stop decision are recorded in [`09-v0.1-review.md`](09-v0.1-review.md).
 
 The first implementation target is one thin vertical slice:
 
@@ -306,6 +308,8 @@ Acceptance criteria:
 - Deferred scope remains deferred.
 - The team explicitly accepts v0.1 before any collector or capability-composition work begins.
 
+Completion evidence: [`09-v0.1-review.md`](09-v0.1-review.md) reconciles the ambiguous eleven source bullets into ten unique obligations, maps them to tests or reviewed artifacts, records the implementation-aware threat and dependency review, documents lessons, and formally accepts only the narrow offline v0.1 claim. The final suite passes 58 tests, all five schemas compile strictly, and the point-in-time npm audit reports zero known vulnerabilities.
+
 ### M6 — Runtime integration discovery
 
 M6 is a new design gate, not an automatic implementation milestone.
@@ -325,7 +329,7 @@ Acceptance criteria to authorize later work:
 4. **Complete:** implement and verify M2 as a focused deterministic-core change.
 5. **Complete:** implement and verify M3 as a focused presentation/CLI change.
 6. **Complete:** complete M4 with tests and corresponding documentation changes.
-7. **Pending explicit authorization:** execute M5 and stop.
-8. Open a separate design decision for M6 only if requested.
+7. **Complete:** execute M5, accept the narrow offline v0.1 claim, and stop.
+8. **Not authorized:** open a separate design decision for M6 only if requested.
 
 Do not combine M1 with a real agent adapter, YAML support, persistence, OPA/Rego, a dashboard, AEF integration, or OS containment.

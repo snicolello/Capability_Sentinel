@@ -29,6 +29,7 @@ test('text findings retain target, reason, severity, and prescribed decision', (
 
   assert.match(text, /Capability drift: 1\n/u);
   assert.match(text, /Overall prescribed decision: BLOCK\n/u);
+  assert.match(text, /no allow rule matched this observed operation/u);
   assert.match(text, /finding:evt-network-001:capability-drift/u);
   assert.match(text, /Capability: NETWORK_EGRESS/u);
   assert.match(text, /Target: \{"host":"registry\.npmjs\.org","kind":"network_origin","port":443,"scheme":"https"\}/u);

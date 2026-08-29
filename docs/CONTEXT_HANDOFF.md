@@ -2,7 +2,7 @@
 
 ## Current objective and stop gate
 
-ARRM M0 and M1 are complete in implementation commit `e0cc0ca` (`feat: implement deterministic ARRM M1 slice`), M2 is complete in commit `0014e53` (`feat: complete deterministic ARRM M2 core`), and M3 is complete in commit `ccd4b03` (`feat: complete ARRM M3 CLI presentation`). M4 is also complete. The repository now contains a deterministic offline assessor for the full approved v0.1 capability taxonomy:
+ARRM M0 and M1 are complete in implementation commit `e0cc0ca` (`feat: implement deterministic ARRM M1 slice`), M2 is complete in commit `0014e53` (`feat: complete deterministic ARRM M2 core`), M3 is complete in commit `ccd4b03` (`feat: complete ARRM M3 CLI presentation`), and M4 is complete in commit `32123ba` (`test: complete ARRM M4 hardening matrix`). M5 is also complete; use `git log -1 --oneline` for the exact review commit. The narrow offline v0.1 claim is formally accepted and the project is stopped before M6.
 
 ```text
 load strict policy and canonical trace
@@ -11,7 +11,7 @@ load strict policy and canonical trace
 → emit canonical deterministic JSON or stable human-readable text
 ```
 
-Do not automatically broaden the implementation. M5 is the next planned milestone and requires separate explicit user authorization. A real collector, enforcement integration, effective-capability graph, dashboard, persistence, YAML, AEF integration, and other deferred subsystems remain out of scope.
+Do not automatically broaden the implementation. M6 runtime-integration discovery is a new design gate and requires separate explicit user authorization. A real collector, enforcement integration, effective-capability graph, dashboard, persistence, YAML, AEF integration, and other deferred subsystems remain out of scope.
 
 ## Repository state at this handoff
 
@@ -21,7 +21,8 @@ Do not automatically broaden the implementation. M5 is the next planned mileston
 - M0/M1 implementation commit: `e0cc0ca` — `feat: implement deterministic ARRM M1 slice`
 - M2 implementation commit: `0014e53` — `feat: complete deterministic ARRM M2 core`
 - M3 implementation commit: `ccd4b03` — `feat: complete ARRM M3 CLI presentation`
-- M4 implementation: complete; use `git log -1 --oneline` for the implementation commit.
+- M4 implementation: `32123ba` — `test: complete ARRM M4 hardening matrix`.
+- M5 review and acceptance: complete; use `git log -1 --oneline` for the exact review commit.
 - Planning and handoff documents now live under `docs/`.
 - The documentation relocation/progress refresh is committed after `e0cc0ca`; use `git log -2 --oneline` for the exact latest commit.
 - Inspect `git status` before editing and preserve any later user work.
@@ -121,7 +122,8 @@ Read these before further implementation:
 8. [`06-architecture.md`](06-architecture.md) — module boundaries and CLI exit codes.
 9. [`07-deferred-scope.md`](07-deferred-scope.md) — explicit guardrail.
 10. [`08-open-questions.md`](08-open-questions.md) — unresolved assumptions.
-11. [`../schemas/`](../schemas/) — normative machine-readable contracts.
+11. [`09-v0.1-review.md`](09-v0.1-review.md) — M5 evidence, residual risks, lessons, and formal acceptance.
+12. [`../schemas/`](../schemas/) — normative machine-readable contracts.
 
 ## Locked interpretation
 
@@ -134,16 +136,11 @@ Read these before further implementation:
 - The core remains deterministic, deny by default, external-I/O-free during evaluation, and uses no LLM for decisions.
 - ARRM draws on concepts from cited external models; neither ARRM nor AEF implements or depends on those models or frameworks.
 
-## Next planned milestone if explicitly authorized
+## M5 acceptance and current stop
 
-M5 performs the v0.1 review and stop gate without adding runtime integration:
+M5 traced the ten unique definition-of-done obligations, reconciled the threat model and public claims with the implementation, reviewed dependencies and the trusted surface, recorded residual risks and lessons, and formally accepted v0.1. See [`09-v0.1-review.md`](09-v0.1-review.md).
 
-1. Trace all ten definition-of-done statements to tests or explicit limitations.
-2. Re-run the threat model against the implementation and reconcile documentation claims.
-3. Review the dependency footprint, trusted surface, limits, and diagnostic exposure.
-4. Record lessons learned and stop before any M6 runtime discovery.
-
-Do not treat completion of M4 as permission to add a collector, enforcement, YAML, persistence, AEF integration, capability composition, OS controls, or other M6 work.
+There is no automatically planned implementation milestone. Do not treat v0.1 acceptance as permission to add a collector, enforcement, YAML, persistence, AEF integration, capability composition, OS controls, or other M6 work.
 
 ## Suggested fresh-chat prompt
 
@@ -151,13 +148,13 @@ Do not treat completion of M4 as permission to add a collector, enforcement, YAM
 >
 > Read `docs/CONTEXT_HANDOFF.md`, then `docs/IMPLEMENTATION_PLAN.md`, the authoritative design documents, and the schemas. Inspect `git status` and preserve existing work.
 >
-> M0 and M1 are complete at implementation commit `e0cc0ca`; M2 is complete at `0014e53`; M3 is complete at `ccd4b03`; M4 is also complete. Do not repeat them. Ask for or confirm explicit authorization before beginning M5, and do not add runtime collection, enforcement, YAML, persistence, dashboards, AEF integration, capability composition, or other deferred scope.
+> M0 and M1 are complete at implementation commit `e0cc0ca`; M2 is complete at `0014e53`; M3 is complete at `ccd4b03`; M4 is complete at `32123ba`; M5 is also complete and v0.1 is formally accepted at the stop gate. Use `git log -1 --oneline` for the M5 commit. Do not repeat these milestones. Ask for explicit authorization before any M6 discovery, and do not add runtime collection, enforcement, YAML, persistence, dashboards, AEF integration, capability composition, or other deferred scope.
 
 ## Stop conditions
 
 Stop and ask for direction if:
 
-- M5 or any later milestone has not been explicitly authorized;
+- M6 or any later milestone has not been explicitly authorized;
 - a required change would weaken an approved schema or security invariant;
 - completing a matcher would require runtime target resolution, a collector, or another deferred subsystem;
 - the installed Node major must change or a new dependency family is proposed;

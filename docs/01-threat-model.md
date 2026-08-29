@@ -1,8 +1,12 @@
 # Threat model lite
 
+## M5 implementation review
+
+Reviewed against the implemented v0.1 offline assessor on 2026-08-29. The implementation contains no collector, runtime adapter, enforcement point, or persistent audit writer. It reads a trusted local policy and a trusted local canonical trace, validates and evaluates them, and emits an assessment to stdout. Future components shown in architecture material are not part of the accepted trusted surface.
+
 ## Scope
 
-The system under analysis is one local agent run observed through an execution wrapper or tool gateway. The v0.1 CLI assesses a previously captured trace. A future in-process adapter may query the same evaluator before performing an operation, but kernel-level containment is out of scope.
+The implemented system under analysis is the offline CLI assessment of one supplied agent-run trace. The trace is assumed to have been produced by a trusted execution wrapper or tool gateway, but no such collector is implemented here. A future in-process adapter may query the evaluator before performing an operation, but runtime mediation and kernel-level containment are out of scope.
 
 ## Assets
 
@@ -19,7 +23,7 @@ The system under analysis is one local agent run observed through an execution w
 |---|---|
 | Policy author | Trusted to express intended authority; may make mistakes. |
 | Agent and agent-generated input | Untrusted; may be buggy or deliberately evasive. |
-| Collector/execution wrapper | Trusted for mediation, classification, attribution, and event order. |
+| Collector/execution wrapper | Assumed upstream and trusted for classification, attribution, completeness, and event order; not implemented in v0.1. |
 | Normalizer, validator, evaluator | Trusted computing base. |
 | Invoked process, tool, proxy, or service | Untrusted beyond the specific declared invocation. |
 | Audit consumer | Trusted to interpret prescribed responses as decisions, not proof of enforcement. |
@@ -29,23 +33,21 @@ The collector is the largest assumption. If the agent can act outside it, ARRM c
 ## Trust boundaries
 
 ```text
-Untrusted agent input
-        |
-        v
-[collector / wrapper] -----> operating system, tool, or service
-        |                         (effects may exceed visibility)
-        v
- structured trace
-        |
-        v
-[schema + normalizer] <----- policy file from trusted author
-        |
-        v
-[deterministic evaluator] -----> prescribed decision
-        |
-        v
-[audit writer] -------------> audit consumer
+trusted local policy file ----+
+                              |
+trusted canonical trace ------+--> [bounded loader + schema/semantic validation]
+                                      |
+                                      v
+                              [deterministic evaluator]
+                                      |
+                                      v
+                         stdout assessment / stderr diagnostic
+                                      |
+                                      v
+                              trusted audit consumer
 ```
+
+The upstream agent and collector boundary is outside the implemented process. v0.1 cannot detect an operation omitted before the trace reaches this boundary.
 
 An enforcement point would have to sit before the effect-producing call. Post-hoc trace assessment cannot retroactively block an operation.
 
@@ -53,7 +55,7 @@ An enforcement point would have to sit before the effect-producing call. Post-ho
 
 | Threat | Consequence | v0.1 treatment | Residual limitation |
 |---|---|---|---|
-| Bypass collector | Undeclared action is invisible | State mediation assumption prominently; adapters emit structured events | No bypass resistance |
+| Bypass collector | Undeclared action is invisible | State the trusted, complete-trace assumption; assess only supplied structured events | No collector or bypass resistance is implemented |
 | Drop, forge, reorder, or misattribute events | Incorrect assessment | Require run/agent IDs and monotonic sequence; reject duplicates/gaps by semantic validation | No cryptographic provenance |
 | Ambiguous shell command parsing | Rule bypass or false match | Match executable and argument array; never split a command string in the core | Invoked program may interpret arguments unexpectedly |
 | Path traversal or prefix confusion | Out-of-scope file matches | Normalize separators and dot segments; compare whole path segments; use exact or subtree scopes only | Symlinks, junctions, mounts, case rules, and TOCTOU remain |
@@ -62,9 +64,19 @@ An enforcement point would have to sit before the effect-producing call. Post-ho
 | Secret material in telemetry | Audit log leaks credentials | Record credential identifiers, never values; raw payloads are outside canonical events | Target names may still be sensitive |
 | Overbroad allow rules | Harmful operation is declared | No wildcard hosts or arbitrary globs in v0.1; exact targets and path subtrees only | Policy quality remains a human responsibility |
 | Malformed/unknown input | Authority expands by parser failure | Schema validation fails closed; a valid `UNCLASSIFIED` event always drifts | Availability can be denied by bad input |
-| Response adapter fails | Decision says block but effect occurs | Audit prescribed response separately from enforcement outcome | v0.1 has no enforcement outcome |
+| Response adapter fails | Decision says block but effect occurs | Label every response as prescribed and make no enforcement claim | v0.1 has no response adapter or enforcement outcome |
 | Tampered policy or audit | False allow or hidden finding | File permissions and digests are implementation research items | No tamper-evident storage in v0.1 |
 | Confused deputy through allowed tool | Tool performs broader operation | Flag as effective-authority problem | Explicitly deferred to composition research |
+| Large valid input exhausts CPU or memory | Assessment becomes slow or unavailable | Bound files and schema cardinalities; reject oversize inputs | Evaluation is proportional to events times rules; bounds are not a resource guarantee |
+| Assessment output exposes target metadata | Paths, arguments, hosts, tool names, or credential identifiers leak through logs | Forbid credential values and raw payloads; keep diagnostics content-safe | Valid target identifiers are intentionally auditable and may still be sensitive |
+
+## Implementation-aware findings
+
+- The production dependency and import review found no unplanned subsystem. Filesystem input is confined to the loader; schemas are repository-owned static imports; stdout/stderr are the only output boundary.
+- Policy and trace reads use regular-file checks, byte limits, a single read handle, and a final size/mtime comparison. This detects ordinary concurrent mutation but is not provenance, locking, or cryptographic integrity.
+- Strict parsing rejects BOMs, invalid UTF-8, comments, trailing commas, trailing content, empty input, and duplicate keys. Structural and semantic validation occur before evaluation.
+- Valid assessment output necessarily reproduces typed targets. Credential values cannot enter the canonical schema, but credential identifiers and other target metadata require confidential handling by the audit consumer.
+- The evaluator performs lexical identity checks only. No live filesystem lookup, DNS resolution, environment interpolation, current time, randomness, process spawning, network access, or LLM call participates in a decision.
 
 ## Attacker goals considered
 

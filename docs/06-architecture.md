@@ -1,6 +1,8 @@
-# Proposed v0.1 architecture
+# v0.1 architecture
 
-## Components
+## Components and boundary
+
+Only the offline CLI path from canonical input documents through assessment rendering is implemented in v0.1. The runtime adapter and adapter normalizer below are future context, not shipped components.
 
 ```text
 runtime adapter                  offline CLI input
@@ -31,7 +33,7 @@ policy JSON ---> policy loader        |
           canonical assessment       text renderer
                   |
                   v
-              audit writer
+            stdout emission
 ```
 
 Collection, decision, enforcement, and audit are separate responsibilities:
@@ -40,27 +42,30 @@ Collection, decision, enforcement, and audit are separate responsibilities:
 - **Adapter normalizer:** canonicalizes typed event targets before trace assembly or returns a classification error.
 - **Policy decision point:** answers whether a rule matches and derives a prescribed response.
 - **Policy enforcement point:** would apply a decision before an effect. It is not part of the offline v0.1 assessor.
-- **Audit writer:** records inputs' evaluation results; it does not reinterpret them.
+- **Audit output:** the implemented CLI writes the assessment to stdout; it has no persistent audit writer or output-file option.
 
 This separation draws on the established policy-decision/policy-enforcement distinction without implementing or importing any cited policy framework or engine.
 
-## Proposed modules
+## Implemented modules
 
 ```text
 src/
-  cli/
+  cli.js
+  io/
   schema/
   policy/
+  trace/
   normalize/
   evaluate/
   response/
   audit/
+  render/
 schemas/
 fixtures/
 tests/
 ```
 
-The repository should not create these implementation directories until coding begins. Each module should expose pure functions where possible.
+Only `src/cli.js` and `src/io/load-json.js` perform application-directed process or filesystem I/O. Decision, matching, normalization, response, serialization, and rendering modules are pure over supplied values.
 
 ## Processing algorithm
 
@@ -83,7 +88,7 @@ Any exception or unsupported state before step 6 is an input/assessment error, n
 arrm assess POLICY.json TRACE.json [--json]
 ```
 
-Proposed exit codes:
+Exit codes:
 
 | Code | Meaning |
 |---|---|

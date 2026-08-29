@@ -57,6 +57,7 @@ test('text mode is deterministic and expresses the JSON assessment result', () =
   assert.match(first.stdout, /Capability drift: 1\n/u);
   assert.match(first.stdout, /Overall prescribed decision: BLOCK\n/u);
   assert.match(first.stdout, /Prescribed decision: BLOCK\n/u);
+  assert.match(first.stdout, /no allow rule matched this observed operation/u);
 });
 
 test('invalid JSON produces a controlled content-safe error and no assessment', async (context) => {

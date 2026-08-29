@@ -8,12 +8,15 @@ function renderEvaluation(evaluation) {
 }
 
 function renderFinding(finding) {
+  const reasonExplanation = finding.reason === 'NO_MATCHING_ALLOW_RULE'
+    ? 'no allow rule matched this observed operation'
+    : 'the collector reported an operation it could not safely classify';
   return [
     `- ${finding.finding_id}`,
     `  Event: ${finding.event_id}`,
     `  Capability: ${finding.capability}`,
     `  Target: ${stableJsonLine(finding.target)}`,
-    `  Reason: ${finding.reason}`,
+    `  Reason: ${finding.reason} (${reasonExplanation})`,
     `  Severity: ${finding.severity}`,
     `  Prescribed decision: ${finding.decision}`,
   ];
