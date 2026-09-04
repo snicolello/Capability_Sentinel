@@ -1,0 +1,287 @@
+
+=== DIRECTORY TREE (max depth 3, source files only) ===
+.gitignore
+.nvmrc
+AGENTS.md
+CLAUDE.md
+docs
+docs\00-problem-statement.md
+docs\01-threat-model.md
+docs\02-capability-taxonomy.md
+docs\03-event-model.md
+docs\04-policy-model.md
+docs\05-test-scenarios.md
+docs\06-architecture.md
+docs\07-deferred-scope.md
+docs\08-open-questions.md
+docs\09-v0.1-review.md
+docs\codebase
+docs\codebase\.codebase-scan.txt
+docs\codebase\ARCHITECTURE.md
+docs\codebase\CONCERNS.md
+docs\codebase\CONVENTIONS.md
+docs\codebase\INTEGRATIONS.md
+docs\codebase\STACK.md
+docs\codebase\STRUCTURE.md
+docs\codebase\TESTING.md
+docs\CONTEXT_HANDOFF.md
+docs\IMPLEMENTATION_PLAN.md
+docs\references.md
+fixtures
+fixtures\expected
+fixtures\expected\credential-drift-run.assessment.json
+fixtures\expected\file-write-drift-run.assessment.json
+fixtures\expected\network-drift-run.assessment.json
+fixtures\expected\normal-run.assessment.json
+fixtures\expected\process-drift-run.assessment.json
+fixtures\policies
+fixtures\policies\example-agent.json
+fixtures\traces
+fixtures\traces\credential-drift-run.json
+fixtures\traces\file-write-drift-run.json
+fixtures\traces\network-drift-run.json
+fixtures\traces\normal-run.json
+fixtures\traces\process-drift-run.json
+package-lock.json
+package.json
+PROJECT.md
+README.md
+schemas
+schemas\assessment.schema.json
+schemas\event.schema.json
+schemas\finding.schema.json
+schemas\policy.schema.json
+schemas\trace.schema.json
+scripts
+scripts\check-schemas.js
+src
+src\audit
+src\audit\stable-json.js
+src\cli.js
+src\constants.js
+src\errors.js
+src\evaluate
+src\evaluate\evaluate-run.js
+src\evaluate\match-target.js
+src\io
+src\io\load-json.js
+src\normalize
+src\normalize\path.js
+src\policy
+src\policy\validate-semantics.js
+src\render
+src\render\text.js
+src\response
+src\response\derive-response.js
+src\schema
+src\schema\create-validator.js
+src\schema\validate-input.js
+src\trace
+src\trace\validate-semantics.js
+STATE.md
+tests
+tests\contract
+tests\contract\full-scenarios.test.js
+tests\integration
+tests\integration\assess-cli.test.js
+tests\unit
+tests\unit\evaluate-run.test.js
+tests\unit\load-json.test.js
+tests\unit\match-target.test.js
+tests\unit\path.test.js
+tests\unit\schema-validation.test.js
+tests\unit\stable-json.test.js
+tests\unit\text.test.js
+
+=== STACK DETECTION (manifest files) ===
+
+--- package-lock.json ---
+{
+  "name": "agent-runtime-risk-monitor",
+  "version": "0.1.0",
+  "lockfileVersion": 3,
+  "requires": true,
+  "packages": {
+    "": {
+      "name": "agent-runtime-risk-monitor",
+      "version": "0.1.0",
+      "dependencies": {
+        "ajv": "8.20.0",
+        "ajv-formats": "3.0.1",
+        "jsonc-parser": "3.3.1"
+      },
+      "bin": {
+        "arrm": "src/cli.js"
+      },
+      "engines": {
+        "node": ">=24 <25"
+      }
+    },
+    "node_modules/ajv": {
+      "version": "8.20.0",
+      "resolved": "https://registry.npmjs.org/ajv/-/ajv-8.20.0.tgz",
+      "integrity": "sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA==",
+      "license": "MIT",
+      "dependencies": {
+        "fast-deep-equal": "^3.1.3",
+        "fast-uri": "^3.0.1",
+        "json-schema-traverse": "^1.0.0",
+        "require-from-string": "^2.0.2"
+      },
+      "funding": {
+        "type": "github",
+        "url": "https://github.com/sponsors/epoberezkin"
+      }
+    },
+    "node_modules/ajv-formats": {
+      "version": "3.0.1",
+      "resolved": "https://registry.npmjs.org/ajv-formats/-/ajv-formats-3.0.1.tgz",
+      "integrity": "sha512-8iUql50EUR+uUcdRQ3HDqa6EVyo3docL8g5WJ3FNcWmu62IbkGUue/pEyLBW8VGKKucTPgqeks4fIU1DA4yowQ==",
+      "license": "MIT",
+      "dependencies": {
+        "ajv": "^8.0.0"
+      },
+      "peerDependencies": {
+        "ajv": "^8.0.0"
+      },
+      "peerDependenciesMeta": {
+        "ajv": {
+          "optional": true
+        }
+      }
+    },
+    "node_modules/fast-deep-equal": {
+      "version": "3.1.3",
+      "resolved": "https://registry.npmjs.org/fast-deep-equal/-/fast-deep-equal-3.1.3.tgz",
+      "integrity": "sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==",
+      "license": "MIT"
+    },
+    "node_modules/fast-uri": {
+      "version": "3.1.6",
+      "resolved": "https://registry.npmjs.org/fast-uri/-/fast-uri-3.1.6.tgz",
+      "integrity": "sha512-7Ical1vFEMr0onbVzEDIreM22I4khW+fzyQPwvAFWBp1iwdshSZRsL4jjRvPG9JP1uiqMHRto+YU6R2/CzDz5Q==",
+      "funding": [
+        {
+          "type": "github",
+          "url": "https://github.com/sponsors/fastify"
+        },
+        {
+          "type": "opencollective",
+          "url": "https://opencollective.com/fastify"
+        }
+      ],
+      "license": "BSD-3-Clause"
+    },
+    "node_modules/json-schema-traverse": {
+      "version": "1.0.0",
+      "resolved": "https://registry.npmjs.org/json-schema-traverse/-/json-schema-traverse-1.0.0.tgz",
+      "integrity": "sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==",
+
+[TRUNCATED] Showing first 80 of 99 lines.
+--- package.json ---
+{
+  "name": "agent-runtime-risk-monitor",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Deterministic offline assessment for declared versus observed agent operations.",
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "bin": {
+    "arrm": "src/cli.js"
+  },
+  "scripts": {
+    "check": "node scripts/check-schemas.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "jsonc-parser": "3.3.1"
+  }
+}
+
+
+=== ENTRY POINTS ===
+No common entry points found. Check 'main' or 'scripts.start' in manifest files above.
+
+=== LINTING AND FORMATTING CONFIG ===
+No linting or formatting config files found in project root.
+
+=== ENVIRONMENT VARIABLE TEMPLATES ===
+No .env.example or .env.template found. Identify required environment variables by searching the code and config for environment variable reads.
+
+=== TODO / FIXME / HACK (production code only, test dirs excluded) ===
+None found.
+
+=== GIT RECENT COMMITS (last 20) ===
+96fb67a docs: onboard project into personal orchestration hub
+1765c75 test: close v0.1 release review gaps
+33b12e8 docs: accept ARRM v0.1 at M5 stop gate
+32123ba test: complete ARRM M4 hardening matrix
+ccd4b03 feat: complete ARRM M3 CLI presentation
+0014e53 feat: complete deterministic ARRM M2 core
+bb2589a docs: refresh ARRM implementation handoff
+e0cc0ca feat: implement deterministic ARRM M1 slice
+b1e20dc docs: define ARRM v0.1 security model
+88d5669 first commit
+
+=== HIGH-CHURN FILES (last 90 days, top 20) ===
+   5 docs/CONTEXT_HANDOFF.md
+   5 docs/IMPLEMENTATION_PLAN.md
+   4 tests/unit/schema-validation.test.js
+   4 README.md
+   4 tests/integration/assess-cli.test.js
+   3 tests/unit/evaluate-run.test.js
+   3 tests/unit/match-target.test.js
+   2 docs/05-test-scenarios.md
+   2 docs/01-threat-model.md
+   2 docs/06-architecture.md
+   2 src/render/text.js
+   2 tests/unit/text.test.js
+   2 fixtures/policies/example-agent.json
+   2 src/audit/stable-json.js
+   2 src/cli.js
+   2 src/constants.js
+   2 src/evaluate/evaluate-run.js
+   2 src/evaluate/match-target.js
+   2 src/policy/validate-semantics.js
+   2 src/response/derive-response.js
+
+=== MONOREPO SIGNALS ===
+No monorepo signals detected.
+
+=== CODE METRICS ===
+Total files scanned: 68
+Total lines of code: 2789
+
+Files by language:
+  Other: 44
+  JavaScript: 24
+
+Top 10 largest files:
+docs\IMPLEMENTATION_PLAN.md: 22.7KB
+docs\CONTEXT_HANDOFF.md: 11.3KB
+tests\contract\full-scenarios.test.js: 9.6KB
+tests\integration\assess-cli.test.js: 9.6KB
+docs\09-v0.1-review.md: 9.2KB
+docs\01-threat-model.md: 7.5KB
+docs\codebase\CONCERNS.md: 7.2KB
+tests\unit\evaluate-run.test.js: 6.2KB
+tests\unit\schema-validation.test.js: 5.1KB
+docs\codebase\ARCHITECTURE.md: 4.8KB
+
+=== CI/CD PIPELINES ===
+No CI/CD pipelines detected.
+
+=== CONTAINERS & ORCHESTRATION ===
+No containerization configs detected.
+
+=== SECURITY & COMPLIANCE ===
+No security configs detected.
+
+=== PERFORMANCE & TESTING ===
+No performance testing configs detected.
+
+=== SCAN COMPLETE ===

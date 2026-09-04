@@ -61,4 +61,3 @@ CLI paths -> bounded strict JSON load -> structural + semantic validation
 - `src/evaluate/match-target.js`
 - `docs/06-architecture.md`
 - `docs/09-v0.1-review.md`
-

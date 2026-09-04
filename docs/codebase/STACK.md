@@ -58,4 +58,3 @@ node src/cli.js assess fixtures/policies/example-agent.json fixtures/traces/norm
 - `src/io/load-json.js`
 - `scripts/check-schemas.js`
 - `docs/codebase/.codebase-scan.txt`
-

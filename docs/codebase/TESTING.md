@@ -56,4 +56,3 @@ npm.cmd run check
 - `fixtures/expected/normal-run.assessment.json`
 - `scripts/check-schemas.js`
 - `docs/09-v0.1-review.md`
-

@@ -50,4 +50,3 @@
 - `src/schema/create-validator.js`
 - `tests/integration/assess-cli.test.js`
 - `docs/codebase/.codebase-scan.txt`
-

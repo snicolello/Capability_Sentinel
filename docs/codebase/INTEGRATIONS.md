@@ -52,4 +52,3 @@ Input and fixture JSON files are documents, not an application-managed data stor
 - `tests/contract/full-scenarios.test.js`
 - `docs/06-architecture.md`
 - `docs/07-deferred-scope.md`
-
