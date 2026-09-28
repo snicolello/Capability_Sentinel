@@ -10,6 +10,8 @@ ARRM is a conformance monitor, not a sandbox. It does not infer every capability
 
 ## Current status
 
+**Lifecycle:** Completed / Reference. ARRM v0.1 is preserved as a bounded research prototype and evidence base, not an active standalone project roadmap. The proposed M6 runtime-integration phase was closed as superseded by broader PPG / AEF / governed-execution ownership. Future reuse should be driven by a concrete runtime requirement rather than restarting Capability Sentinel independently.
+
 ARRM v0.1 is accepted at the M5 stop gate. The repository contains a reproducible, deterministic offline assessor for all seven observable capability classes and all six declarable policy capabilities. All five approved scenarios, the malformed-input matrix, deterministic JSON and text presentation, and the documented exit-code contract are automated.
 
 This acceptance remains deliberately narrow: ARRM compares a trusted policy with a valid, ordered, trusted trace. It is not a collector, sandbox, enforcement point, effective-authority analyzer, or proof of complete runtime visibility. Runtime-integration discovery is an unstarted M6 design gate that requires separate authorization.
